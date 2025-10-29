@@ -14,42 +14,21 @@
 
 import pinocchio as pin
 import numpy as np
-from src.figaroh.tools.qrdecomposition import get_baseParams
+from figaroh.tools.qrdecomposition import get_baseParams
 
-# def build_regressor_basic(N, robot, q, v, a):
-#     # TODO: reorgnize columns from ['m', 'mx','my','mz','Ixx','Ixy','Iyy','Ixz', 'Iyz','Izz']
-#     # to ['Ixx','Ixy','Ixz','Iyy','Iyz','Izz','mx','my','mz','m']
-#     W = np.zeros([N * robot.model.nv, 10 * robot.model.nv])
-#     for i in range(N):
-#         W_temp = pin.computeJointTorqueRegressor(
-#             robot.model, robot.data, q[i, :], v[i, :], a[i, :]
-#         )
-#         for j in range(W_temp.shape[0]):
-#             W[j * N + i, :] = W_temp[j, :]
-#     W_mod = np.zeros([N * robot.model.nv, 10 * robot.model.nv])
-#     for k in range(robot.model.nv):
-#         W_mod[:, 10 * k + 9] = W[:, 10 * k + 0]  # m
-#         W_mod[:, 10 * k + 8] = W[:, 10 * k + 3]  # mz
-#         W_mod[:, 10 * k + 7] = W[:, 10 * k + 2]  # my
-#         W_mod[:, 10 * k + 6] = W[:, 10 * k + 1]  # mx
-#         W_mod[:, 10 * k + 5] = W[:, 10 * k + 9]  # Izz
-#         W_mod[:, 10 * k + 4] = W[:, 10 * k + 8]  # Iyz
-#         W_mod[:, 10 * k + 3] = W[:, 10 * k + 6]  # Iyy
-#         W_mod[:, 10 * k + 2] = W[:, 10 * k + 7]  # Ixz
-#         W_mod[:, 10 * k + 1] = W[:, 10 * k + 5]  # Ixy
-#         W_mod[:, 10 * k + 0] = W[:, 10 * k + 4]  # Ixx
-#     return W_mod
 
 def build_regressor_basic(robot, q, v, a, param, tau=None):
     """This function builds the basic regressor of the 10(+4) parameters
-    'Ixx','Ixy','Ixz','Iyy','Iyz','Izz','mx','my','mz','m'+ ('ia','fs','fv','off') using pinocchio
+    'Ixx','Ixy','Ixz','Iyy','Iyz','Izz','mx','my','mz','m'+ ('Ia','fs','fv','off') using pinocchio
     library depending on param.
     Input:  robot: (robot) a robot extracted from an urdf (for instance)
             q: (ndarray) a configuration position vector (size robot.model.nq)
             v: (ndarray) a configuration velocity vector (size robot.model.nv)
             a: (ndarray) a configutation acceleration vectore (size robot.model.na)
-            param: (dict) a dictionnary setting the options, i.e., here add two
-            parameters, 'ia' if the flag 'has_actuator_inertia' is true,'fs' and 'fv' if the flag 'has friction' is true, 'off' is the flag "has_joint_offset' is true
+                param: (dict) a dictionnary setting the options, i.e., here add two
+                parameters, 'ia' if the flag 'has_actuator_inertia' is true,'fs'
+                and 'fv' if the flag 'has friction' is true, 'off' is the flag
+                "has_joint_offset' is true
             tau : (ndarray) of stacked torque measurements (Fx,Fy,Fz), None if the torque offsets are not identified 
     Output: W_mod: (ndarray) basic regressor for 10(+4) parameters
     """
