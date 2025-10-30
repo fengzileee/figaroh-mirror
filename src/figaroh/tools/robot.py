@@ -99,7 +99,9 @@ class Robot(RobotWrapper):
 
         # change order of values in phi['m', 'mx','my','mz','Ixx','Ixy','Iyy','Ixz', 'Iyz','Izz'] - from pinoccchio
         # corresponding to params_name ['Ixx','Ixy','Ixz','Iyy','Iyz','Izz','mx','my','mz','m']
-        
+
+        model_friction = model.friction
+        model_damping = model.damping
         for i in range(1,len(model.inertias)):
             P =  model.inertias[i].toDynamicParameters()
             P_mod = np.zeros(P.shape[0])
@@ -131,11 +133,7 @@ class Robot(RobotWrapper):
             else:
                 phi.extend([0])
             if param['has_friction']:
-                try:
-                    phi.extend([param['fv'][i-1], param['fs'][i-1]])
-                except Exception as e:
-                    print("Warning: ", 'has_friction_%d' % i, e)
-                    phi.extend([0, 0])
+                phi.extend([model_friction[i-1], model_damping[i-1]])
             else:
                 phi.extend([0, 0])
             if param['has_joint_offset']:

@@ -54,7 +54,7 @@ setup(
     keywords=[],
     python_requires=">=3.8",
     install_requires=[
-        "pin",  # pinocchio
+        "pin>=3.4.0",  # pinocchio
         "typer",
         "numdifftools",
         "quadprog",
