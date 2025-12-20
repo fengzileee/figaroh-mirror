@@ -15,8 +15,6 @@
 import pinocchio as pin
 import numpy as np
 from scipy import signal
-from ..tools.regressor import build_regressor_reduced, get_index_eliminate
-import quadprog
 import operator
 
 def get_param_from_yaml(robot,identif_data):
@@ -345,19 +343,6 @@ def low_pass_filter_data(data,param,nbutter=5):
     return data
 
 # SIP QP OPTIMISATION
-
-def quadprog_solve_qp(P, q, G=None, h=None, A=None, b=None):
-    qp_G = .5 * (P + P.T) + np.eye(P.shape[0])*(1e-5)   # make sure P is symmetric, pos,def
-    qp_a = -q
-    if A is not None:
-        qp_C = -np.vstack([A, G]).T
-        qp_b = -np.hstack([b, h])
-        meq = A.shape[0]
-    else:  # no equality constraint
-        qp_C = -G.T
-        qp_b = -h
-        meq = 0
-    return quadprog.solve_qp(qp_G, qp_a, qp_C, qp_b, meq)[0]  
 
 # def sample_spherical(npoints, ndim=3):
 #     vec = np.random.randn(ndim, npoints)
