@@ -1,6 +1,7 @@
 from typing import Tuple, List
 import re
 import logging
+from copy import deepcopy
 
 import numpy as np
 
@@ -164,9 +165,7 @@ class Regression:
 
     def check_condition_number(self):
         cond_number = self._get_condition_number_with_traj(self._trajectory)
-        random_trajectory = self._trajectory.random_like()
-        ideal_cond_number = self._get_condition_number_with_traj(random_trajectory)
-        return cond_number, ideal_cond_number
+        return cond_number
 
     def _get_condition_number_with_traj(self, trajectory):
         regressor = self._get_regressor_from_trajectory(trajectory)
@@ -238,7 +237,7 @@ class Regression:
         regressor_reduced = np.delete(regressor_standard, idx_eliminate, axis=1)
         values_kept = parameter_standard.get_values_by_names(names_kept)
         params_reduced = Parameter(names_kept, values_kept)
-        return regressor_reduced, params_reduced
+        return regressor_reduced, params_reduced, idx_eliminate
 
     def get_base_regressor_and_parameter(
         self, tol: float = 1e-6
@@ -272,7 +271,7 @@ class Regression:
         return self._get_base_things_from_standard(regressor_standard, parameter_standard, tol)
 
     def _get_base_things_from_standard(self, regressor_standard, parameter_standard, tolerance):
-        regressor_reduced, parameter_reduced = self._reduce_regressor_and_parameter(
+        regressor_reduced, parameter_reduced, _ = self._reduce_regressor_and_parameter(
             regressor_standard, parameter_standard, tolerance
         )
         _, base_names_symbolic, base_idx = get_baseParams(
@@ -286,3 +285,6 @@ class Regression:
         base_values = mapping_standard2base @ parameter_standard.get_values()
         parameter = Parameter(base_names_symbolic, base_values)
         return regressor_base, parameter, mapping_standard2base
+
+    def random_like(self):
+        return Regression(deepcopy(self._robot), self._trajectory.random_like())
