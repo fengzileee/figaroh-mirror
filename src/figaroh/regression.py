@@ -1,11 +1,11 @@
-from typing import Tuple, List
+from typing import Tuple, List, Sequence
 import re
 import logging
 from copy import deepcopy
 
 import numpy as np
+from pinocchio.robot_wrapper import RobotWrapper
 
-from figaroh.tools.robot import Robot
 from figaroh.tools.regressor import build_regressor_basic, get_index_eliminate
 from figaroh.tools.qrdecomposition import get_baseParams
 from figaroh.trajectory import Trajectory
@@ -145,7 +145,7 @@ class Regression:
     target = regressor * parameter
     """
 
-    def __init__(self, robot: Robot, trajectory: Trajectory):
+    def __init__(self, robot: RobotWrapper, trajectory: Trajectory):
         self._robot = robot
         self._trajectory = trajectory
         self._config = {
@@ -170,7 +170,9 @@ class Regression:
     def _get_condition_number_with_traj(self, trajectory):
         regressor = self._get_regressor_from_trajectory(trajectory)
         parameter = self._get_parameter()
-        regressor_base, _, _ = self._get_base_things_from_standard(regressor, parameter, 1e-6)
+        regressor_base, _, _ = self._get_base_things_from_standard(
+            regressor, parameter, 1e-6
+        )
         cond_number = np.linalg.cond(regressor_base)
         return cond_number
 
@@ -205,7 +207,7 @@ class Regression:
 
     def get_reduced_regressor_and_parameter(
         self, tol: float = 1e-6
-    ) -> Tuple[np.ndarray, Parameter]:
+    ) -> Tuple[np.ndarray, Parameter, Sequence[int]]:
         """
         Computes the reduced regressor and the corresponding parameters.
 
@@ -226,7 +228,9 @@ class Regression:
                   identifiable.
         """
         regressor_standard, parameter_standard = self.get_regressor_and_parameter()
-        return self._reduce_regressor_and_parameter(regressor_standard, parameter_standard, tol)
+        return self._reduce_regressor_and_parameter(
+            regressor_standard, parameter_standard, tol
+        )
 
     def _reduce_regressor_and_parameter(
         self, regressor_standard: np.ndarray, parameter_standard: Parameter, tolerance
@@ -268,9 +272,13 @@ class Regression:
             properties.
         """
         regressor_standard, parameter_standard = self.get_regressor_and_parameter()
-        return self._get_base_things_from_standard(regressor_standard, parameter_standard, tol)
+        return self._get_base_things_from_standard(
+            regressor_standard, parameter_standard, tol
+        )
 
-    def _get_base_things_from_standard(self, regressor_standard, parameter_standard, tolerance):
+    def _get_base_things_from_standard(
+        self, regressor_standard, parameter_standard, tolerance
+    ):
         regressor_reduced, parameter_reduced, _ = self._reduce_regressor_and_parameter(
             regressor_standard, parameter_standard, tolerance
         )
