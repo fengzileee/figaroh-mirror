@@ -88,7 +88,7 @@ def get_standard_parameters(model, param):
         else:
             phi.extend([0])
         if param["has_friction"]:
-            phi.extend([model_friction[i - 1], model_damping[i - 1]])
+            phi.extend([model_damping[i - 1], model_friction[i - 1]])
         else:
             phi.extend([0, 0])
         if param["has_joint_offset"]:
